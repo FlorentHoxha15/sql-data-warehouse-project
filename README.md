@@ -1,117 +1,93 @@
-# 🏗️ Data Warehouse & Analytics Project
+# 🏗️ SQL Data Warehouse Project
 
-Welcome to the **Data Warehouse & Analytics Project**! 🚀
+Welcome to my **SQL Data Warehouse Project**! 🚀
 
-This project demonstrates an end-to-end data warehousing and analytics solution, covering the complete process from ingesting raw source data to building business-ready analytical models.
+This project demonstrates the design and implementation of a modern data warehouse using **SQL Server**.
 
-The project is designed as a **Data Engineering portfolio project** and demonstrates practical experience with **SQL Server, ETL processes, data transformation, data modeling, and the Medallion Architecture**.
+The project follows the **Medallion Architecture**, transforming raw ERP and CRM data through **Bronze, Silver, and Gold layers** into clean, structured, and business-ready datasets for analytics and reporting.
 
 ---
 
 ## 📖 Project Overview
 
-The project covers four main areas:
+This project covers the complete data warehouse development process:
 
 1. **Data Architecture**  
-   Designing a modern data warehouse using the **Medallion Architecture** with Bronze, Silver, and Gold layers.
+   Designing a data warehouse using the **Bronze, Silver, and Gold** layers.
 
-2. **ETL Pipelines**  
-   Extracting, loading, cleaning, and transforming data from multiple source systems.
+2. **Data Ingestion**  
+   Loading raw ERP and CRM data from CSV files into SQL Server.
 
-3. **Data Modeling**  
-   Developing fact and dimension tables using a **Star Schema** optimized for analytical queries.
+3. **Data Transformation**  
+   Cleaning, standardizing, and transforming raw data into reliable datasets.
 
-4. **Analytics & Reporting**  
-   Creating SQL-based analytical datasets and reports to generate actionable business insights.
+4. **Data Modeling**  
+   Creating fact and dimension tables using a **Star Schema**.
 
-### 🎯 Skills Demonstrated
-
-This project demonstrates practical knowledge of:
-
-- SQL Development
-- Data Warehousing
-- Data Engineering
-- ETL / ELT Processes
-- Data Cleaning
-- Data Transformation
-- Data Integration
-- Data Modeling
-- Star Schema Design
-- Data Quality Testing
-- Data Analytics
+5. **Analytics**  
+   Preparing business-ready data for SQL analysis and reporting.
 
 ---
 
-## 🚀 Project Requirements
+## 🎯 Project Objectives
 
-### Data Engineering — Building the Data Warehouse
+The main objective is to build a modern data warehouse that consolidates sales data from two different source systems.
 
-#### Objective
+### Requirements
 
-Develop a modern data warehouse using **SQL Server** to consolidate sales data from multiple source systems and prepare it for analytical reporting and informed decision-making.
-
-#### Specifications
-
-- **Data Sources:** Import data from two source systems (**ERP and CRM**) provided as CSV files.
-- **Data Quality:** Clean and resolve data quality issues before analysis.
-- **Integration:** Combine both sources into a single, user-friendly analytical data model.
-- **Scope:** Focus on the latest available dataset; historization is not required.
-- **Documentation:** Provide clear documentation of the data model for both technical and business users.
-
----
-
-### Analytics & Reporting
-
-#### Objective
-
-Develop SQL-based analytics to provide insights into:
-
-- **Customer Behavior**
-- **Product Performance**
-- **Sales Trends**
-
-The goal is to transform the processed data into meaningful business information that can support data-driven decision-making.
+- Import data from **ERP and CRM** source systems.
+- Load CSV files into SQL Server.
+- Clean and standardize the source data.
+- Resolve data quality issues.
+- Integrate data from multiple sources.
+- Create business-ready fact and dimension tables.
+- Build a **Star Schema** for analytical queries.
+- Prepare the data for reporting and analytics.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technologies Used
 
-The main technologies and tools used in this project are:
-
-- **SQL Server** — Data warehouse and database engine
-- **T-SQL** — Data transformation, cleaning, modeling, and analytical queries
-- **SQL Server Management Studio (SSMS)** — Database development and management
-- **CSV Files** — Source data from ERP and CRM systems
-- **Draw.io** — Architecture, data flow, and data model diagrams
-- **Git & GitHub** — Version control and project documentation
+- **SQL Server**
+- **T-SQL**
+- **SQL Server Management Studio (SSMS)**
+- **CSV Files**
+- **Medallion Architecture**
+- **Git**
+- **GitHub**
 
 ---
 
 ## 🏗️ Data Architecture
 
-The project follows the **Medallion Architecture**, consisting of three layers:
+The project follows the **Medallion Architecture**:
 
-**Bronze → Silver → Gold**
-
-Each layer has a specific responsibility within the data pipeline.
-
-### 📥 Source Systems
-
-The source data originates from two operational systems:
-
-- **CRM**
-- **ERP**
-
-**Source format:** CSV Files  
-**Interface:** Files stored in folders
+```text
+ERP & CRM
+    │
+    ▼
+🥉 Bronze
+Raw Data
+    │
+    ▼
+🥈 Silver
+Cleaned & Standardized Data
+    │
+    ▼
+🥇 Gold
+Business-Ready Data
+    │
+    ▼
+📊 Analytics & Reporting
+```
 
 ---
 
-### 🥉 Bronze Layer — Raw Data
+## 🥉 Bronze Layer
 
-The Bronze layer stores the source data **as-is**, without transformations.
+The Bronze layer stores the raw source data.
 
-Data from the CRM and ERP CSV files is loaded into SQL Server tables.
+Data from the ERP and CRM CSV files is loaded into SQL Server without applying business transformations.
 
 **Object Type:** Tables
 
@@ -122,16 +98,25 @@ Data from the CRM and ERP CSV files is loaded into SQL Server tables.
 
 **Transformations:** None
 
-**Data Model:** None (as-is)
-
 **Purpose:**  
-Preserve the original source data and create a reliable starting point for further processing.
+Preserve the source data in its original form before further processing.
 
 ---
 
-### 🥈 Silver Layer — Cleaned & Standardized Data
+## 🥈 Silver Layer
 
-The Silver layer contains cleaned, standardized, and validated data.
+The Silver layer contains cleaned and standardized data.
+
+Transformations include:
+
+- Data Cleaning
+- Data Standardization
+- Data Normalization
+- Handling Missing Values
+- Removing Duplicates
+- Data Type Validation
+- Derived Columns
+- Data Enrichment
 
 **Object Type:** Tables
 
@@ -140,209 +125,175 @@ The Silver layer contains cleaned, standardized, and validated data.
 - Full Load
 - Truncate & Insert
 
-**Transformations:**
-- Data Cleansing
-- Data Standardization
-- Data Normalization
-- Derived Columns
-- Data Enrichment
-- Handling Missing Values
-- Removing Duplicates
-- Data Type Validation
-
-**Data Model:** None (as-is)
-
 **Purpose:**  
-Improve data quality and prepare the source data for integration and analytical modeling.
+Improve data quality and prepare the data for integration and analytical modeling.
 
 ---
 
-### 🥇 Gold Layer — Business-Ready Data
+## 🥇 Gold Layer
 
-The Gold layer contains business-ready data optimized for analytics and reporting.
+The Gold layer contains business-ready data used for analytics and reporting.
+
+Data from the Silver layer is integrated and modeled into **fact and dimension tables**.
 
 **Object Type:** Views
-
-**Load Strategy:** No physical load required for views
 
 **Transformations:**
 - Data Integration
 - Business Logic
+- Joins
 - Aggregations
-- Joins between CRM and ERP data
 
 **Data Model:**
 - Star Schema
 - Fact Tables
 - Dimension Tables
-- Aggregated Views
 
 **Purpose:**  
-Provide clean and structured datasets that can be consumed directly by reporting and analytics tools.
+Provide structured and business-friendly datasets optimized for analytical queries.
 
 ---
 
-## 🔄 Data Flow
+## ⭐ Data Modeling
 
-The overall data flow of the project is:
-
-```text
-CRM CSV Files ──┐
-                │
-                ▼
-            🥉 Bronze
-            Raw Data
-                │
-ERP CSV Files ──┘
-                │
-                ▼
-            🥈 Silver
-      Cleaned & Standardized
-                │
-                ▼
-             🥇 Gold
-        Business-Ready Data
-                │
-                ▼
-        📊 Analytics & Reporting
-```
-
-In summary:
-
-```text
-Source Systems → Bronze → Silver → Gold → Analytics
-```
-
----
-
-## ⭐ Data Model
-
-The Gold layer uses a **Star Schema** to organize business-ready data.
+The Gold layer follows a **Star Schema**.
 
 The model separates data into:
 
-- **Fact Tables** — Store measurable business events such as sales transactions.
-- **Dimension Tables** — Store descriptive information such as customers and products.
-
-This structure improves readability and makes analytical queries easier to develop and maintain.
+- **Fact Tables** — measurable business events such as sales.
+- **Dimension Tables** — descriptive information such as customers and products.
 
 Example:
 
 ```text
-              dim_customers
-                    │
-                    │
-                    ▼
+             dim_customers
+                   │
+                   ▼
 dim_products ──► fact_sales
-                    ▲
-                    │
-                 dim_date
 ```
+
+This structure makes analytical SQL queries easier to write and improves the usability of the data warehouse.
 
 ---
 
-## 📊 Data Consumption
+## 📊 Analytics
 
-The Gold layer can be consumed by:
+The Gold layer can be used to analyze:
 
-- BI & Reporting Tools
-- Ad-Hoc SQL Queries
-- Business Analytics
-- Dashboards
-- Machine Learning Applications
+### Customer Behavior
+- Customer purchasing patterns
+- Customer segmentation
+- Customer contribution to revenue
+
+### Product Performance
+- Best-performing products
+- Product sales performance
+- Product categories
+
+### Sales Trends
+- Revenue development
+- Sales over time
+- Business performance
 
 ---
 
 ## 📂 Repository Structure
 
 ```text
-data-warehouse-project/
+sql-data-warehouse-project/
 │
-├── datasets/                          # Raw ERP and CRM datasets
+├── datasets/                 # Raw ERP and CRM datasets
 │
-├── docs/                              # Project documentation and architecture
-│   ├── etl.drawio                     # ETL process documentation
-│   ├── data_architecture.drawio       # Data warehouse architecture
-│   ├── data_catalog.md                # Dataset and column documentation
-│   ├── data_flow.drawio               # Data flow diagram
-│   ├── data_models.drawio             # Star schema and data models
-│   └── naming-conventions.md          # Naming standards
+├── docs/                     # Project documentation and diagrams
 │
-├── scripts/                           # SQL scripts
-│   ├── bronze/                        # Raw data ingestion scripts
-│   ├── silver/                        # Data cleaning and transformation scripts
-│   └── gold/                          # Analytical model and view scripts
+├── scripts/                  # SQL scripts for the data warehouse
 │
-├── tests/                             # Data quality and validation tests
+├── LICENSE                   # MIT License
+└── README.md                 # Project documentation
+```
+
+### `datasets/`
+
+Contains the raw CSV datasets from the **ERP and CRM source systems**.
+
+### `docs/`
+
+Contains documentation and diagrams related to the data warehouse architecture, data flow, and data modeling.
+
+### `scripts/`
+
+Contains the SQL scripts used to build and transform the data warehouse.
+
+The scripts are organized around the different stages of the Medallion Architecture:
+
+```text
+scripts/
 │
-├── README.md                          # Project documentation
-├── LICENSE                            # License information
-├── .gitignore                         # Git ignored files
-└── requirements.txt                   # Project dependencies
+├── bronze/       # Raw data ingestion
+├── silver/       # Data cleaning and transformation
+└── gold/         # Business-ready analytical models
 ```
 
 ---
 
-## 🔍 Data Quality
+## 🔄 ETL Process
 
-Data quality checks are performed throughout the transformation process.
+The project follows this general data pipeline:
 
-Examples include:
+```text
+CSV Files
+   ↓
+SQL Server
+   ↓
+Bronze Layer
+   ↓
+Silver Layer
+   ↓
+Gold Layer
+   ↓
+Analytics
+```
 
-- Checking for duplicate records
-- Detecting NULL values
-- Validating primary keys
-- Standardizing categorical values
-- Validating date ranges
-- Checking data consistency between ERP and CRM systems
-- Validating relationships between fact and dimension tables
+### Extract
 
-These checks help ensure that only reliable and consistent data reaches the Gold layer.
+ERP and CRM data is extracted from CSV files.
 
----
+### Load
 
-## 📈 Analytics
+The raw data is loaded into the **Bronze layer**.
 
-The final analytical layer can be used to answer business questions related to:
+### Transform
 
-### Customer Analysis
-- Who are the most valuable customers?
-- How does customer behavior change over time?
-- Which customer groups generate the most revenue?
+The data is cleaned, standardized, validated, and enriched in the **Silver layer**.
 
-### Product Analysis
-- Which products generate the most sales?
-- Which product categories perform best?
-- How does product performance change over time?
+### Model
 
-### Sales Analysis
-- How are sales developing over time?
-- What are the main sales trends?
-- Which periods generate the highest revenue?
+The transformed data is integrated into fact and dimension models in the **Gold layer**.
 
 ---
 
-## 🧠 Key Concepts Demonstrated
+## 🧠 Skills Demonstrated
 
-Through this project, I demonstrate practical understanding of:
+This project demonstrates practical experience with:
 
-- Medallion Architecture
-- Data Warehouse Design
-- ETL Pipelines
-- SQL Stored Procedures
-- Data Cleaning & Transformation
+- SQL Development
+- Data Engineering
+- Data Warehousing
+- ETL Processes
+- Data Cleaning
+- Data Transformation
 - Data Integration
+- Medallion Architecture
 - Fact & Dimension Modeling
-- Star Schema
-- Data Quality Validation
+- Star Schema Design
 - Analytical SQL
-- Git Version Control
+- Git & GitHub
 - Technical Documentation
 
 ---
 
 ## 🛡️ License
 
-This project is licensed under the **LICENSE** included in this repository.
+This project is licensed under the **MIT License**.
 
-You are free to use, modify, and share this project in accordance with the license terms.
+See the `LICENSE` file for more information.
