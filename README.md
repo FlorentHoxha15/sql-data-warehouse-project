@@ -204,7 +204,7 @@ sql-data-warehouse-project/
 │
 ├── datasets/                 # Raw ERP and CRM datasets
 │
-├
+├-- docs/                     # Project documentation and architecture details
 │
 ├── scripts/                  # SQL scripts for the data warehouse
 │
