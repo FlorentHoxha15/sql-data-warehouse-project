@@ -15,6 +15,7 @@ Data Model:
         - gold.dim_customers
         - gold.dim_products
         - gold.fact_sales
+        - gold.fact_sales_currency
 
 Source:
     Cleaned and standardized data from the Silver layer.
@@ -51,12 +52,12 @@ SELECT
     ca.bdate AS birthdate,
     ci.cst_create_date AS create_date
 
-FROM silver.crm_cust_info ci
+FROM silver.crm_cust_info AS ci
 
-LEFT JOIN silver.erp_cust_az12 ca
+LEFT JOIN silver.erp_cust_az12 AS ca
     ON ci.cst_key = ca.cid
 
-LEFT JOIN silver.erp_loc_a101 la
+LEFT JOIN silver.erp_loc_a101 AS la
     ON ci.cst_key = la.cid;
 
 GO
@@ -86,9 +87,9 @@ SELECT
     pn.prd_line AS product_line,
     pn.prd_start_dt AS start_date
 
-FROM silver.crm_prd_info pn
+FROM silver.crm_prd_info AS pn
 
-LEFT JOIN silver.erp_px_cat_g1v2 pc
+LEFT JOIN silver.erp_px_cat_g1v2 AS pc
     ON pn.cat_id = pc.id
 
 -- Only keep the current version of each product.
@@ -119,12 +120,40 @@ SELECT
     sd.sls_quantity AS quantity,
     sd.sls_price AS price
 
-FROM silver.crm_sales_details sd
+FROM silver.crm_sales_details AS sd
 
-LEFT JOIN gold.dim_products pr
+LEFT JOIN gold.dim_products AS pr
     ON sd.sls_prd_key = pr.product_number
 
-LEFT JOIN gold.dim_customers cu
+LEFT JOIN gold.dim_customers AS cu
     ON sd.sls_cust_id = cu.customer_id;
+
+GO
+
+
+/* =============================================================================
+   Create Fact View: gold.fact_sales_currency
+============================================================================= */
+
+CREATE OR ALTER VIEW gold.fact_sales_currency AS
+
+SELECT
+    f.order_number,
+    f.product_key,
+    f.customer_key,
+    f.order_date,
+
+    f.sales_amount AS sales_eur,
+
+    c.quote AS currency,
+    c.rate AS exchange_rate,
+
+    f.sales_amount * c.rate AS converted_sales
+
+FROM gold.fact_sales AS f
+
+LEFT JOIN silver.api_currency_rates AS c
+    ON f.order_date = c.date
+    AND c.base = 'EUR';
 
 GO

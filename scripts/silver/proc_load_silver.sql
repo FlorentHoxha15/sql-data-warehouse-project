@@ -461,3 +461,55 @@ BEGIN
     END CATCH;
 END;
 GO
+
+-- =============================================
+-- Load API Currency Rates: Bronze → Silver
+-- =============================================
+
+CREATE OR ALTER PROCEDURE silver.load_api_currency_rates
+AS
+BEGIN
+
+    INSERT INTO silver.api_currency_rates (
+        date,
+        base,
+        quote,
+        rate
+    )
+
+    SELECT
+        t.date,
+        t.base,
+        t.quote,
+        t.rate
+
+    FROM (
+        SELECT
+            CAST(date AS DATE) AS date,
+            UPPER(TRIM(base)) AS base,
+            UPPER(TRIM(quote)) AS quote,
+
+            CASE
+                WHEN rate <= 0 THEN NULL
+                ELSE rate
+            END AS rate,
+
+            ROW_NUMBER() OVER (
+                PARTITION BY date, base, quote
+                ORDER BY date
+            ) AS row_num
+
+        FROM bronze.api_currency_rates
+    ) AS t
+
+    WHERE t.row_num = 1
+
+      AND NOT EXISTS (
+          SELECT 1
+          FROM silver.api_currency_rates AS s
+          WHERE s.date = t.date
+            AND s.base = t.base
+            AND s.quote = t.quote
+      );
+
+END;

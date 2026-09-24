@@ -126,3 +126,14 @@ CREATE TABLE silver.erp_px_cat_g1v2 (
     MAINTENANCE     NVARCHAR(10),
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
+
+-- =============================================
+-- Create Silver Currency Rates Table
+-- =============================================
+
+CREATE TABLE silver.api_currency_rates (
+    date  DATE,
+    base  VARCHAR(3),
+    quote VARCHAR(3),
+    rate  FLOAT
+);
