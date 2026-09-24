@@ -510,7 +510,7 @@ sql-data-warehouse-project/
 │   └── source_api/
 │       └── currency_raw.json
 │
-├── docs/
+|
 │
 ├── python/
 │   ├── ingestion/
