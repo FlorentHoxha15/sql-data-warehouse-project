@@ -1,12 +1,14 @@
-# 🏗️ SQL & Python Data Warehouse Project
+# 🏗️ SQL, Python & PySpark Data Warehouse Project
 
-Welcome to my **SQL & Python Data Warehouse Project**! 🚀
+Welcome to my **SQL, Python & PySpark Data Warehouse Project**! 🚀
 
-This project demonstrates the design and implementation of an end-to-end data warehouse using **SQL Server and Python**.
+This project demonstrates the design and implementation of an end-to-end data warehouse using **SQL Server, Python, Pandas, and PySpark**.
 
 The project follows the **Medallion Architecture**, transforming raw CRM, ERP, and external API data through **Bronze, Silver, and Gold layers** into clean, integrated, and business-ready datasets.
 
 The project combines traditional **CSV-based ETL** with a **Python REST API pipeline**, including data quality checks, logging, error handling, watermark logic, and incremental loading.
+
+As the project evolved, a second implementation of the currency pipeline was developed using **PySpark and Parquet**. The original Pandas + SQL Server implementation is intentionally preserved to demonstrate the progression toward more scalable Data Engineering technologies.
 
 ---
 
@@ -41,23 +43,35 @@ The project covers:
    - Watermark logic
    - Logging and error handling
 
-4. **SQL Data Transformation**
+4. **PySpark Data Pipeline**
+   - SparkSession
+   - Spark DataFrames
+   - Data cleaning and transformation
+   - Data type conversion
+   - Data quality validation
+   - Incremental processing
+   - Spark-based watermark logic
+   - Parquet storage
+   - Data partitioning
+   - Bronze and Silver processing
+
+5. **SQL Data Transformation**
    - Cleaning
    - Standardization
    - Deduplication
    - Data type conversion
    - Business key validation
 
-5. **Data Integration**
+6. **Data Integration**
    - CRM + ERP integration
    - Historical currency integration
 
-6. **Data Modeling**
+7. **Data Modeling**
    - Fact tables
    - Dimension tables
    - Star Schema
 
-7. **Analytics Layer**
+8. **Analytics Layer**
    - Business-ready datasets
    - Historical currency conversion
    - SQL analysis
@@ -93,6 +107,10 @@ The main objective is to build an end-to-end Data Warehouse that consolidates da
 - Build a Star Schema.
 - Integrate historical exchange rates with sales data.
 - Prepare business-ready datasets for analytics.
+- Reimplement the currency pipeline using PySpark.
+- Store Spark-processed data in Parquet format.
+- Partition datasets for more efficient processing.
+- Apply watermark-based incremental processing with Spark.
 
 ---
 
@@ -103,6 +121,9 @@ The main objective is to build an end-to-end Data Warehouse that consolidates da
 - **SQL Server Management Studio (SSMS)**
 - **Python**
 - **Pandas**
+- **PySpark**
+- **Apache Spark**
+- **Apache Parquet**
 - **Requests**
 - **SQLAlchemy**
 - **PyODBC**
@@ -112,6 +133,7 @@ The main objective is to build an end-to-end Data Warehouse that consolidates da
 - **Logging**
 - **Medallion Architecture**
 - **Star Schema**
+- **Partitioned Data Storage**
 - **Git**
 - **GitHub**
 - **Visual Studio Code**
@@ -134,7 +156,7 @@ Currency REST API     │          ▼
                              🥇 Gold
                                 │
                                 ▼
-                       📊 Analytics & Reporting
+                        📊 Analytics & Reporting
 ```
 
 ## Data Sources
@@ -238,6 +260,110 @@ The Python pipeline:
 
 ---
 
+# ⚡ PySpark Currency Pipeline
+
+As the project evolved, a second implementation of the currency pipeline was developed using **PySpark**.
+
+The original **Pandas + SQL Server pipeline** is intentionally preserved in the repository. This demonstrates the progression from local DataFrame processing and relational database loading toward distributed data processing and Parquet-based storage.
+
+## PySpark Pipeline Flow
+
+```text
+Frankfurter REST API
+        │
+        ▼
+Python Requests
+        │
+        ▼
+Raw JSON
+        │
+        ▼
+PySpark DataFrame
+        │
+        ▼
+Data Type Conversion
+        │
+        ▼
+NULL & Duplicate Handling
+        │
+        ▼
+Data Quality Validation
+        │
+        ▼
+Watermark Check
+        │
+        ▼
+Incremental Processing
+        │
+        ▼
+🥉 Bronze Parquet
+        │
+        ▼
+PySpark Transformations
+        │
+        ▼
+🥈 Silver Parquet
+```
+
+## PySpark Features
+
+The PySpark implementation demonstrates:
+
+- SparkSession creation
+- Spark DataFrame processing
+- Data type conversion using `cast()`
+- Date conversion using `to_date()`
+- NULL handling with `dropna()`
+- Duplicate removal with `dropDuplicates()`
+- Filtering with Spark expressions
+- Data quality validation
+- Spark aggregations
+- Watermark logic
+- Incremental data processing
+- Parquet storage
+- Partitioning using `partitionBy()`
+- Bronze processing with PySpark
+- Silver transformations with PySpark
+- Modular pipeline development
+- Logging and error handling
+
+## Pipeline Evolution
+
+```text
+Version 1
+Pandas + SQLAlchemy + SQL Server
+        │
+        ▼
+Watermark-based Incremental Loading
+        │
+        ▼
+SQL Server Bronze
+        │
+        ▼
+SQL Server Silver
+
+                ↓ EVOLUTION ↓
+
+Version 2
+PySpark DataFrames
+        │
+        ▼
+Spark Transformations
+        │
+        ▼
+Watermark-based Incremental Processing
+        │
+        ▼
+Partitioned Bronze Parquet
+        │
+        ▼
+Partitioned Silver Parquet
+```
+
+Both implementations are kept in the repository to demonstrate the learning journey and the transition toward scalable Data Engineering technologies.
+
+---
+
 # 💱 Currency Data
 
 Historical exchange rates are collected for the sales period:
@@ -260,13 +386,13 @@ The currency data is used to enrich the existing sales data with historical curr
 
 # 🔄 Incremental Loading
 
-One of the main improvements to the Python pipeline is the implementation of **incremental loading**.
+One of the main improvements to the currency pipelines is the implementation of **incremental loading and processing**.
 
-Instead of blindly loading the same historical records every time the pipeline runs, the pipeline checks which data has already been processed.
+Instead of blindly loading the same historical records every time the pipeline runs, the pipelines determine which data has already been processed.
 
-## Watermark Logic
+## Pandas + SQL Server Watermark
 
-The maximum date already stored in the Bronze currency table is used as a watermark.
+In the original implementation, the maximum date already stored in the Bronze currency table is used as a watermark.
 
 Conceptually:
 
@@ -291,53 +417,65 @@ Compare Dates
         └── New record ──► Load
 ```
 
+## PySpark Watermark
+
+The PySpark implementation applies the same concept using Spark.
+
+The Bronze Parquet dataset is read and the maximum processed date is retrieved using a Spark aggregation.
+
+Conceptually:
+
+```python
+bronze_df.agg(
+    spark_max("date").alias("watermark")
+)
+```
+
+Incoming records are then filtered using:
+
+```python
+col("date") > watermark
+```
+
 If no watermark exists, the dataset is treated as the initial load.
 
-If a watermark exists, only records with a later date are selected.
-
-This prevents the pipeline from unnecessarily loading the same historical data during every execution.
+This prevents the pipelines from unnecessarily processing the same historical data during every execution.
 
 ---
 
 # 🔍 Data Quality Checks
 
-Before new API data is loaded into the Data Warehouse, several data quality checks are performed with Pandas.
+Data quality validation is performed before data continues through the pipeline.
 
-The pipeline checks:
+The pipelines check for:
 
 - NULL values
 - Duplicate rows
 - Data types
 - Invalid exchange rates
 
-Example pipeline logic:
-
-```text
-API Data
-   │
-   ▼
-Pandas DataFrame
-   │
-   ▼
-NULL Check
-   │
-   ▼
-Duplicate Check
-   │
-   ▼
-Data Type Check
-   │
-   ▼
-Invalid Rate Check
-   │
-   ▼
-Incremental Processing
-```
-
 Invalid exchange rates are identified when:
 
 ```text
 rate <= 0
+```
+
+The PySpark implementation additionally performs transformations such as:
+
+```text
+Date conversion
+      │
+      ▼
+Rate type conversion
+      │
+      ▼
+NULL removal
+      │
+      ▼
+Duplicate removal
+      │
+      ▼
+Invalid rate validation
 ```
 
 If invalid rates are detected, the pipeline logs the problem and stops before loading the affected dataset.
@@ -346,7 +484,7 @@ If invalid rates are detected, the pipeline logs the problem and stops before lo
 
 # 📝 Logging & Error Handling
 
-The Python pipeline uses logging to make pipeline execution easier to follow and troubleshoot.
+The pipelines use logging to make execution easier to follow and troubleshoot.
 
 Examples of logged events include:
 
@@ -354,30 +492,29 @@ Examples of logged events include:
 - API extraction successful
 - Number of extracted records
 - Raw JSON saved
-- Database connection successful
-- NULL values
-- Duplicate count
-- Data types
+- Database connection successful in the SQL Server implementation
 - Current watermark
 - Number of new records
 - Bronze load successful
-- Silver procedure successful
+- Silver processing successful
 - Pipeline completed
 - Pipeline failure
 
-The pipeline also handles:
+The pipelines also handle:
 
 - API request errors
-- Database errors
+- Database errors in the SQL Server implementation
 - Unexpected pipeline exceptions
 
-This makes failures easier to identify instead of allowing the pipeline to fail silently.
+This makes failures easier to identify instead of allowing a pipeline to fail silently.
 
 ---
 
-# 🧩 Modular Python Design
+# 🧩 Modular Pipeline Design
 
-The Python pipeline is divided into reusable functions.
+Both implementations are divided into reusable functions.
+
+## Pandas + SQL Server
 
 Examples include:
 
@@ -405,32 +542,41 @@ load_silver()
 main()
 ```
 
-The `main()` function coordinates the complete pipeline.
+## PySpark
 
-Conceptually:
+The PySpark implementation includes functions such as:
 
 ```text
+create_spark_session()
+
+extract_currency_data()
+save_raw_data()
+
+create_dataframe()
+
+convert_date_column()
+convert_rate_column()
+remove_nulls()
+remove_duplicates()
+
+check_invalid_rates()
+check_data_quality()
+
+get_watermark()
+filter_new_data()
+check_new_data()
+
+load_bronze()
+
+transform_silver()
+load_silver()
+
 main()
- │
- ├── Create database engine
- ├── Test database connection
- │
- ├── Extract API data
- ├── Save raw JSON
- │
- ├── Create DataFrame
- ├── Prepare data
- │
- ├── Run data quality checks
- │
- ├── Read watermark
- ├── Filter new records
- │
- ├── Load Bronze
- └── Execute Silver procedure
 ```
 
-This structure separates responsibilities and makes the pipeline easier to understand and maintain.
+The `main()` function coordinates each pipeline.
+
+This structure separates responsibilities and makes the pipelines easier to understand, maintain, and extend.
 
 ---
 
@@ -444,11 +590,9 @@ The Bronze layer stores source data before business transformations are applied.
 - ERP CSV files
 - Currency API data
 
-## Object Type
+## SQL Server Implementation
 
-**Tables**
-
-## CRM & ERP Load Strategy
+CRM and ERP use:
 
 ```text
 Batch Processing
@@ -456,7 +600,7 @@ Full Load
 Truncate & Insert
 ```
 
-## Currency API Load Strategy
+The original currency API pipeline uses:
 
 ```text
 Python Ingestion
@@ -471,11 +615,26 @@ Currency data is loaded into:
 bronze.api_currency_rates
 ```
 
-## Purpose
+## PySpark Implementation
 
-The Bronze layer preserves source-level data before Silver transformations are applied.
+The PySpark currency pipeline stores incremental Bronze data in **Parquet format**.
 
-For the currency pipeline, the Bronze layer also acts as the reference point for the current watermark.
+```text
+API Data
+   │
+   ▼
+PySpark DataFrame
+   │
+   ▼
+Incremental Filter
+   │
+   ▼
+Bronze Parquet
+```
+
+The Bronze Parquet dataset is partitioned by the currency quote.
+
+The Bronze layer also provides the processed data used to determine the current watermark.
 
 ---
 
@@ -483,7 +642,7 @@ For the currency pipeline, the Bronze layer also acts as the reference point for
 
 The Silver layer contains cleaned, standardized, validated, and deduplicated data.
 
-## Transformations
+## SQL Server Transformations
 
 - Data Cleaning
 - Data Standardization
@@ -493,10 +652,6 @@ The Silver layer contains cleaned, standardized, validated, and deduplicated dat
 - String Standardization
 - Business Key Validation
 - Data Enrichment
-
-## Object Type
-
-**Tables**
 
 Currency data flows from:
 
@@ -517,8 +672,6 @@ TRIM()
 UPPER()
 ```
 
-Invalid exchange rates are handled in the transformation logic.
-
 Duplicate currency records are detected using:
 
 ```sql
@@ -537,7 +690,20 @@ Existing Silver records are protected from duplicate insertion using:
 NOT EXISTS
 ```
 
-This makes the Silver loading process rerunnable without inserting the same business records again.
+## PySpark Silver Processing
+
+The PySpark implementation performs Silver transformations using Spark DataFrame operations.
+
+These include:
+
+- Duplicate removal
+- Invalid rate filtering
+- Data type preparation
+- Spark-based transformations
+- Parquet output
+- Partitioned storage
+
+The transformed data is stored as a Silver Parquet dataset.
 
 ---
 
@@ -545,7 +711,7 @@ This makes the Silver loading process rerunnable without inserting the same busi
 
 The Gold layer contains business-ready datasets used for analytics and reporting.
 
-Data from the Silver layer is integrated and modeled into fact and dimension views.
+Data from the SQL Server Silver layer is integrated and modeled into fact and dimension views.
 
 ## Object Type
 
@@ -575,16 +741,18 @@ gold.fact_sales_currency
 
 The Gold layer provides structured and business-friendly datasets optimized for analytical SQL queries and BI/reporting tools.
 
+The current PySpark learning implementation focuses on **Bronze and Silver processing**. Gold processing with Spark can be added in a later stage.
+
 ---
 
 # ⭐ Data Modeling
 
-The main Gold model follows a **Star Schema**.
+The main SQL Server Gold model follows a **Star Schema**.
 
 ```text
              dim_customers
-                   │
-                   ▼
+                  │
+                  ▼
 dim_products ──► fact_sales
 ```
 
@@ -633,7 +801,7 @@ Converted Sales
 €3,578 × 1.3155 = $4,706.86
 ```
 
-The resulting analytical view is:
+The resulting analytical SQL Server view is:
 
 ```text
 gold.fact_sales_currency
@@ -679,7 +847,7 @@ This assumption was introduced specifically to demonstrate:
 
 # 🔄 ETL / ELT Process
 
-The project combines SQL-based warehouse processing with Python-based API ingestion.
+The project combines SQL-based warehouse processing with Python and PySpark-based API ingestion.
 
 ## CRM & ERP Pipeline
 
@@ -696,7 +864,7 @@ Silver
 Gold
 ```
 
-## Currency API Pipeline
+## Original Currency API Pipeline
 
 ```text
 REST API
@@ -720,42 +888,50 @@ Watermark
 Incremental Load
     │
     ▼
-Bronze
+SQL Server Bronze
     │
     ▼
-Silver
+SQL Server Silver
     │
     ▼
 Gold Currency Integration
 ```
 
-## Extract
+## PySpark Currency Pipeline
 
-Data is extracted from:
-
-- CRM CSV files
-- ERP CSV files
-- External REST API
-
-## Load
-
-Source data is loaded into the Bronze layer.
-
-The API pipeline uses watermark logic to determine which currency records are new before appending them to Bronze.
-
-## Transform
-
-The Silver layer performs:
-
-- Cleaning
-- Standardization
-- Validation
-- Deduplication
-- Data type conversion
-
-## Model
-
-The Gold layer integrates transformed datasets into business-ready analytical views.
+```text
+REST API
+    │
+    ▼
+Python Requests
+    │
+    ▼
+Raw JSON
+    │
+    ▼
+PySpark DataFrame
+    │
+    ▼
+Data Preparation
+    │
+    ▼
+Data Quality
+    │
+    ▼
+Watermark
+    │
+    ▼
+Incremental Processing
+    │
+    ▼
+Bronze Parquet
+    │
+    ▼
+PySpark Transformations
+    │
+    ▼
+Silver Parquet
+```
 
 ---
 
@@ -803,10 +979,9 @@ sql-data-warehouse-project/
 │       └── currency_raw.json
 │
 ├── python/
-│   ├── ingestion/
-│   │   └── load_data.py
-│   ├── utils/
-│   └── validation/
+│   └── ingestion/
+│       ├── load_data.py
+│       └── currency_pipeline_pyspark.py
 │
 ├── scripts/
 │   ├── bronze/
@@ -834,17 +1009,18 @@ Contains source data used by the project:
 
 ## `python/`
 
-Contains the Python components of the pipeline.
+Contains the Python and PySpark components of the pipeline.
 
 ```text
 python/
-├── ingestion/
-│   └── load_data.py
-├── utils/
-└── validation/
+└── ingestion/
+    ├── load_data.py
+    └── currency_pipeline_pyspark.py
 ```
 
-`load_data.py` handles:
+### `load_data.py`
+
+Contains the original **Pandas + SQL Server** currency pipeline:
 
 - REST API extraction
 - Raw JSON storage
@@ -858,9 +1034,27 @@ python/
 - Logging
 - Error handling
 
+### `currency_pipeline_pyspark.py`
+
+Contains the second-generation **PySpark** implementation:
+
+- SparkSession creation
+- Spark DataFrames
+- Data cleaning
+- Spark transformations
+- Data quality validation
+- Watermark logic
+- Incremental processing
+- Parquet storage
+- Partitioned Bronze storage
+- Silver transformation
+- Partitioned Silver storage
+- Logging
+- Error handling
+
 ## `scripts/`
 
-Contains SQL scripts used to build and transform the Data Warehouse.
+Contains SQL scripts used to build and transform the SQL Server Data Warehouse.
 
 ```text
 scripts/
@@ -875,16 +1069,27 @@ Each directory represents one layer of the Medallion Architecture.
 
 # 🔍 Data Quality
 
-Data quality is handled across both Python and SQL.
+Data quality is handled across Python, PySpark, and SQL.
 
 ## Python Data Quality
 
-Before loading currency data, Python checks:
+The original currency pipeline checks:
 
 - NULL values
 - Duplicate rows
 - Data types
 - Invalid exchange rates
+
+## PySpark Data Quality
+
+The Spark implementation performs:
+
+- NULL handling
+- Duplicate removal
+- Date conversion
+- Rate type conversion
+- Invalid rate detection
+- Validation before Bronze processing
 
 ## SQL Data Quality
 
@@ -902,7 +1107,7 @@ SQL transformations include:
 - Sales validation
 - Date validation
 
-This provides multiple layers of validation throughout the pipeline.
+This provides multiple layers of validation throughout the project.
 
 ---
 
@@ -943,6 +1148,24 @@ This provides multiple layers of validation throughout the pipeline.
 - Automated Database Loading
 - Modular Pipeline Development
 
+## PySpark & Distributed Processing
+
+- PySpark
+- Apache Spark
+- SparkSession
+- Spark DataFrames
+- Spark Transformations
+- Spark Filtering
+- Data Type Casting
+- NULL Handling
+- Duplicate Removal
+- Spark Aggregations
+- Incremental Processing
+- Watermark Logic with Spark
+- Apache Parquet
+- Data Partitioning
+- Bronze / Silver Processing
+
 ## Engineering Practices
 
 - Multi-Source Data Integration
@@ -961,7 +1184,7 @@ This provides multiple layers of validation throughout the pipeline.
 
 # 🚀 Key Learning Outcomes
 
-Through this project, I gained hands-on experience building an end-to-end Data Engineering pipeline combining **SQL and Python**.
+Through this project, I gained hands-on experience building and evolving an end-to-end Data Engineering pipeline combining **SQL, Python, Pandas, and PySpark**.
 
 The project demonstrates how a Data Engineer can:
 
@@ -983,46 +1206,55 @@ The project demonstrates how a Data Engineer can:
 16. Add logging and error handling to a data pipeline.
 17. Structure Python code into reusable pipeline functions.
 18. Prepare business-ready data for analytics and BI.
+19. Create and process Spark DataFrames with PySpark.
+20. Perform transformations using Spark functions.
+21. Apply data quality rules using PySpark.
+22. Implement Spark-based watermark logic.
+23. Perform incremental processing with PySpark.
+24. Store datasets using Apache Parquet.
+25. Partition Parquet datasets for more efficient processing.
+26. Build Bronze and Silver processing using PySpark.
+27. Compare local Pandas processing with Spark-based processing.
 
 ---
 
 # 🔜 Next Steps
 
-The next phase of the project will focus on **Databricks and PySpark**.
+The project has now progressed from a **Pandas + SQL Server pipeline** to an additional **PySpark + Parquet implementation**.
 
-The goal is to explore how the Data Engineering concepts already implemented in Python and SQL Server can be applied in a more scalable data-processing environment.
-
-Planned areas include:
+The next phase will focus on applying these Spark concepts in a more cloud-oriented Data Engineering environment.
 
 ```text
-Current Project
-Python + Pandas + SQL Server
-          │
-          ▼
-Learn PySpark
-          │
-          ▼
+SQL Server + Pandas
+        │
+        ▼
+PySpark + Parquet
+        │
+        ▼
 Databricks
-          │
-          ▼
-Bronze / Silver Processing
-          │
-          ▼
-Lakehouse Concepts
+        │
+        ▼
+Cloud Data Platform
+        │
+        ▼
+Orchestration
+        │
+        ▼
+End-to-End Data Engineering Pipeline
 ```
 
 Future learning goals:
 
-- PySpark DataFrames
-- Reading and transforming data with Spark
-- Spark data types and schemas
-- Filtering and cleaning data with PySpark
 - Databricks notebooks
-- Bronze and Silver processing with PySpark
-- Lakehouse concepts
-- Comparing Pandas processing with distributed Spark processing
+- Spark processing in Databricks
+- Cloud storage integration
+- Lakehouse architecture
+- Delta Lake
+- Pipeline orchestration
+- Scheduled data pipelines
+- End-to-end cloud Data Engineering
 
-The objective is to build on the existing project rather than replacing it, showing the progression from a local Python/SQL Server pipeline toward modern Data Engineering technologies.
+The objective is to continue evolving the same project as new Data Engineering technologies are learned, while preserving earlier implementations to demonstrate the complete learning journey.
 
 ---
 
