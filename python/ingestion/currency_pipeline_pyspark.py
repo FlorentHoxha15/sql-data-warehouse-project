@@ -3,8 +3,13 @@ import logging
 import requests
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, to_date
-from pyspark.sql.functions import max as spark_max
+from pyspark.sql.functions import (
+    col,
+    to_date,
+    avg,
+    min as spark_min,
+    max as spark_max
+)
 
 
 # =============================================
@@ -30,6 +35,7 @@ RAW_FILE = "datasets/source_api/currency_raw.json"
 
 BRONZE_PATH = "datasets/bronze/currency_rates"
 SILVER_PATH = "datasets/silver/currency_rates"
+GOLD_PATH = "datasets/gold/currency_summary"
 
 
 # =============================================
@@ -64,8 +70,14 @@ def extract_currency_data():
 
     data = response.json()
 
-    logging.info("Currency data extracted successfully")
-    logging.info("Number of extracted records: %s", len(data))
+    logging.info(
+        "Currency data extracted successfully"
+    )
+
+    logging.info(
+        "Number of extracted records: %s",
+        len(data)
+    )
 
     return data
 
@@ -75,10 +87,20 @@ def extract_currency_data():
 # =============================================
 
 def save_raw_data(data):
-    with open(RAW_FILE, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4)
+    with open(
+        RAW_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
+        json.dump(
+            data,
+            file,
+            indent=4
+        )
 
-    logging.info("Raw currency data saved successfully")
+    logging.info(
+        "Raw currency data saved successfully"
+    )
 
 
 # =============================================
@@ -118,7 +140,10 @@ def convert_rate_column(df):
 
 def remove_nulls(df):
     df = df.dropna(
-        subset=["date", "rate"]
+        subset=[
+            "date",
+            "rate"
+        ]
     )
 
     return df
@@ -145,8 +170,8 @@ def check_invalid_rates(df):
 def check_data_quality(invalid_rates):
     if invalid_rates.count() > 0:
         return False
-    else:
-        return True
+
+    return True
 
 
 # =============================================
@@ -160,7 +185,9 @@ def get_watermark(spark):
         )
 
         result = bronze_df.agg(
-            spark_max("date").alias("watermark")
+            spark_max("date").alias(
+                "watermark"
+            )
         ).collect()
 
         watermark = result[0]["watermark"]
@@ -168,6 +195,8 @@ def get_watermark(spark):
         return watermark
 
     except Exception:
+        # First pipeline run:
+        # Bronze does not exist yet
         return None
 
 
@@ -178,6 +207,7 @@ def get_watermark(spark):
 def filter_new_data(df, watermark):
     if watermark is None:
         new_data = df
+
     else:
         new_data = df.filter(
             col("date") > watermark
@@ -188,7 +218,10 @@ def filter_new_data(df, watermark):
 
 def check_new_data(new_data):
     if new_data.count() == 0:
-        logging.info("No new data available")
+        logging.info(
+            "No new data available"
+        )
+
         return False
 
     return True
@@ -211,11 +244,23 @@ def load_bronze(new_data):
 
 
 # =============================================
+# Read Bronze
+# =============================================
+
+def read_bronze(spark):
+    bronze_df = spark.read.parquet(
+        BRONZE_PATH
+    )
+
+    return bronze_df
+
+
+# =============================================
 # Transform Silver
 # =============================================
 
-def transform_silver(df):
-    silver_df = df.dropDuplicates()
+def transform_silver(bronze_df):
+    silver_df = bronze_df.dropDuplicates()
 
     silver_df = silver_df.filter(
         col("rate") > 0
@@ -234,7 +279,59 @@ def load_silver(silver_df):
         .partitionBy("quote") \
         .parquet(SILVER_PATH)
 
-    logging.info("Silver data saved successfully")
+    logging.info(
+        "Silver data saved successfully"
+    )
+
+
+# =============================================
+# Read Silver
+# =============================================
+
+def read_silver(spark):
+    silver_df = spark.read.parquet(
+        SILVER_PATH
+    )
+
+    return silver_df
+
+
+# =============================================
+# Transform Gold
+# =============================================
+
+def transform_gold(silver_df):
+    gold_df = silver_df.groupBy(
+        "quote"
+    ).agg(
+        avg("rate").alias(
+            "average_rate"
+        ),
+
+        spark_min("rate").alias(
+            "min_rate"
+        ),
+
+        spark_max("rate").alias(
+            "max_rate"
+        )
+    )
+
+    return gold_df
+
+
+# =============================================
+# Load Gold
+# =============================================
+
+def load_gold(gold_df):
+    gold_df.write \
+        .mode("overwrite") \
+        .parquet(GOLD_PATH)
+
+    logging.info(
+        "Gold data saved successfully"
+    )
 
 
 # =============================================
@@ -243,82 +340,170 @@ def load_silver(silver_df):
 
 def main():
     try:
-        logging.info("Pipeline started")
+        logging.info(
+            "Pipeline started"
+        )
 
+        # =====================================
         # Spark
+        # =====================================
+
         spark = create_spark_session()
 
+
+        # =====================================
         # Extract
+        # =====================================
+
         data = extract_currency_data()
 
-        # Raw storage
+
+        # =====================================
+        # Raw Storage
+        # =====================================
+
         save_raw_data(data)
 
+
+        # =====================================
         # Create Spark DataFrame
+        # =====================================
+
         df = create_dataframe(
             spark,
             data
         )
 
-        # Data preparation
+
+        # =====================================
+        # Data Preparation
+        # =====================================
+
         df = convert_date_column(df)
+
         df = convert_rate_column(df)
+
         df = remove_nulls(df)
+
         df = remove_duplicates(df)
 
-        # Data quality
-        invalid_rates = check_invalid_rates(df)
 
-        if not check_data_quality(invalid_rates):
+        # =====================================
+        # Data Quality
+        # =====================================
+
+        invalid_rates = check_invalid_rates(
+            df
+        )
+
+        if not check_data_quality(
+            invalid_rates
+        ):
             logging.error(
                 "Pipeline stopped: invalid rates found"
             )
+
             return
 
+
+        # =====================================
         # Watermark
-        watermark = get_watermark(spark)
+        # =====================================
+
+        watermark = get_watermark(
+            spark
+        )
 
         logging.info(
             "Current watermark: %s",
             watermark
         )
 
-        # Incremental loading
+
+        # =====================================
+        # Incremental Processing
+        # =====================================
+
         new_data = filter_new_data(
             df,
             watermark
         )
 
-        if not check_new_data(new_data):
+
+        if not check_new_data(
+            new_data
+        ):
             logging.info(
                 "Pipeline completed - no new records to process"
             )
+
             return
+
 
         logging.info(
             "%s new records detected",
             new_data.count()
         )
 
-        # Bronze
-        load_bronze(new_data)
 
-        # Silver
-        silver_df = transform_silver(
+        # =====================================
+        # Bronze
+        # =====================================
+
+        load_bronze(
             new_data
         )
 
-        load_silver(silver_df)
+
+        # =====================================
+        # Bronze → Silver
+        # =====================================
+
+        bronze_df = read_bronze(
+            spark
+        )
+
+        silver_df = transform_silver(
+            bronze_df
+        )
+
+        load_silver(
+            silver_df
+        )
+
+
+        # =====================================
+        # Silver → Gold
+        # =====================================
+
+        silver_df = read_silver(
+            spark
+        )
+
+        gold_df = transform_gold(
+            silver_df
+        )
+
+        load_gold(
+            gold_df
+        )
+
+
+        # =====================================
+        # Pipeline Completed
+        # =====================================
 
         logging.info(
             "Pipeline completed successfully"
         )
+
 
     except requests.RequestException as error:
         logging.error(
             "Currency API extraction failed: %s",
             error
         )
+
 
     except Exception as error:
         logging.exception(
