@@ -2,168 +2,141 @@
 
 Welcome to my **SQL, Python & PySpark Data Warehouse Project**! 🚀
 
-This project demonstrates the design and implementation of an end-to-end data warehouse using **SQL Server, Python, Pandas, and PySpark**.
+This project demonstrates the development and evolution of an end-to-end Data Engineering pipeline using **SQL Server, Python, Pandas, PySpark, and Parquet**.
 
-The project follows the **Medallion Architecture**, transforming raw CRM, ERP, and external API data through **Bronze, Silver, and Gold layers** into clean, integrated, and business-ready datasets.
+The project follows the **Medallion Architecture**, transforming data through **Bronze, Silver, and Gold layers**.
 
-The project combines traditional **CSV-based ETL** with a **Python REST API pipeline**, including data quality checks, logging, error handling, watermark logic, and incremental loading.
+Two implementations of the currency pipeline are intentionally kept in the repository:
 
-As the project evolved, a second implementation of the currency pipeline was developed using **PySpark and Parquet**. The original Pandas + SQL Server implementation is intentionally preserved to demonstrate the progression toward more scalable Data Engineering technologies.
+- **Version 1:** Pandas + SQL Server
+- **Version 2:** PySpark + Parquet
+
+This shows the progression from a traditional Python/SQL pipeline toward a more scalable Spark-based architecture.
 
 ---
 
 # 📖 Project Overview
 
-The goal of this project is to simulate a realistic Data Engineering workflow where data from multiple source systems is collected, processed, validated, transformed, and integrated into a central Data Warehouse.
+The goal of this project is to simulate a realistic Data Engineering workflow where data from multiple sources is collected, validated, transformed, stored, and prepared for analytics.
 
-The project currently integrates three different data sources:
+The project integrates:
 
 - CRM data from CSV files
 - ERP data from CSV files
-- Historical currency exchange rates from an external REST API
+- Historical currency exchange rates from a REST API
 
 The project covers:
 
-1. **Data Architecture**
-   - Bronze, Silver, and Gold layers
-   - Medallion Architecture
-
-2. **Multi-Source Data Ingestion**
-   - CRM CSV files
-   - ERP CSV files
-   - External REST API
-
-3. **Python Data Pipeline**
-   - REST API extraction
-   - Raw JSON storage
-   - Pandas processing
-   - Data quality validation
-   - Database connectivity
-   - Incremental loading
-   - Watermark logic
-   - Logging and error handling
-
-4. **PySpark Data Pipeline**
-   - SparkSession
-   - Spark DataFrames
-   - Data cleaning and transformation
-   - Data type conversion
-   - Data quality validation
-   - Incremental processing
-   - Spark-based watermark logic
-   - Parquet storage
-   - Data partitioning
-   - Bronze and Silver processing
-
-5. **SQL Data Transformation**
-   - Cleaning
-   - Standardization
-   - Deduplication
-   - Data type conversion
-   - Business key validation
-
-6. **Data Integration**
-   - CRM + ERP integration
-   - Historical currency integration
-
-7. **Data Modeling**
-   - Fact tables
-   - Dimension tables
-   - Star Schema
-
-8. **Analytics Layer**
-   - Business-ready datasets
-   - Historical currency conversion
-   - SQL analysis
-   - BI-ready data
+- REST API ingestion
+- Raw JSON storage
+- Data quality checks
+- Incremental loading
+- Watermark logic
+- SQL Server
+- Pandas
+- PySpark
+- Parquet
+- Partitioning
+- Medallion Architecture
+- Bronze / Silver / Gold processing
+- Data modeling
+- Analytics-ready datasets
+- Logging and error handling
 
 ---
 
-# 🎯 Project Objectives
+# 🎯 Project Goal
 
-The main objective is to build an end-to-end Data Warehouse that consolidates data from multiple source systems while applying practical Data Engineering concepts.
+The goal is to build an end-to-end Data Engineering pipeline and gradually evolve it toward technologies used for larger-scale data processing.
 
-## Requirements
+The project started with:
 
-- Import CRM and ERP source data.
-- Load CSV files into SQL Server.
-- Extract historical exchange rates from an external REST API.
-- Use Python to automate API ingestion.
-- Preserve raw API responses as JSON.
-- Convert API responses into Pandas DataFrames.
-- Perform data quality checks before loading.
-- Detect invalid exchange rates.
-- Detect duplicate records.
-- Validate data types.
-- Implement incremental loading.
-- Use watermark logic to identify new records.
-- Connect Python to SQL Server using SQLAlchemy.
-- Load new API records into the Bronze layer.
-- Automatically trigger Silver processing.
-- Clean and standardize source data.
-- Remove duplicate business records.
-- Integrate CRM, ERP, and currency data.
-- Create fact and dimension views.
-- Build a Star Schema.
-- Integrate historical exchange rates with sales data.
-- Prepare business-ready datasets for analytics.
-- Reimplement the currency pipeline using PySpark.
-- Store Spark-processed data in Parquet format.
-- Partition datasets for more efficient processing.
-- Apply watermark-based incremental processing with Spark.
+```text
+Python + Pandas + SQL Server
+```
+
+and was later extended with:
+
+```text
+PySpark + Parquet + Partitioning
+```
+
+This allows both approaches to be compared while keeping the learning journey visible in the repository.
 
 ---
 
 # 🛠️ Technologies Used
 
+- **Python**
+- **SQL**
 - **SQL Server**
 - **T-SQL**
-- **SQL Server Management Studio (SSMS)**
-- **Python**
 - **Pandas**
 - **PySpark**
 - **Apache Spark**
 - **Apache Parquet**
-- **Requests**
-- **SQLAlchemy**
-- **PyODBC**
 - **REST API**
+- **Requests**
 - **JSON**
 - **CSV**
+- **SQLAlchemy**
+- **PyODBC**
 - **Logging**
 - **Medallion Architecture**
 - **Star Schema**
-- **Partitioned Data Storage**
 - **Git**
 - **GitHub**
 - **Visual Studio Code**
 
 ---
 
-# 🏗️ Data Architecture
+# 🏗️ Architecture
 
 The project follows the **Medallion Architecture**:
 
 ```text
-CRM CSV ──────────────┐
-                      │
-ERP CSV ──────────────┼────► 🥉 Bronze
-                      │          │
-Currency REST API     │          ▼
-        │             │      🥈 Silver
-        ▼             │          │
-      Python ─────────┘          ▼
-                             🥇 Gold
-                                │
-                                ▼
-                        📊 Analytics & Reporting
+             Source Systems
+                   │
+        ┌──────────┼──────────┐
+        │          │          │
+        ▼          ▼          ▼
+      CRM         ERP      REST API
+      CSV         CSV     Currency Data
+        │          │          │
+        └──────────┼──────────┘
+                   │
+                   ▼
+              🥉 BRONZE
+                   │
+                   ▼
+              🥈 SILVER
+                   │
+                   ▼
+               🥇 GOLD
+                   │
+                   ▼
+          Analytics / Reporting
 ```
 
-## Data Sources
+Each layer has a different responsibility:
 
-The Data Warehouse integrates three source types:
+### 🥉 Bronze
 
-### CRM
+Stores ingested data with minimal transformation.
+
+### 🥈 Silver
+
+Contains cleaned, validated, standardized, and deduplicated data.
+
+### 🥇 Gold
+
+Contains business-ready and aggregated datasets for analytics and reporting.
+
+---
+
+# 📥 Data Sources
+
+## CRM
 
 CSV files containing:
 
@@ -171,7 +144,7 @@ CSV files containing:
 - Product data
 - Sales data
 
-### ERP
+## ERP
 
 CSV files containing:
 
@@ -179,21 +152,25 @@ CSV files containing:
 - Location information
 - Product category information
 
-### Currency REST API
+## Currency REST API
 
-Historical EUR exchange rates for:
+Historical EUR exchange rates from the Frankfurter API for:
 
 - USD
 - GBP
 - CHF
 
+The currency data covers the sales period:
+
+```text
+2010-12-29 → 2014-01-28
+```
+
 ---
 
-# 🐍 Python Currency API Pipeline
+# 🐍 Version 1 — Pandas + SQL Server Pipeline
 
-Python is used to retrieve historical currency exchange-rate data from an external REST API and integrate it into the existing Data Warehouse.
-
-The pipeline has evolved from a simple API ingestion script into a structured incremental Data Engineering pipeline.
+The first implementation uses **Python, Pandas, SQLAlchemy, and SQL Server**.
 
 ## Pipeline Flow
 
@@ -219,60 +196,60 @@ Data Quality Checks
 Watermark Check
         │
         ▼
-Filter New Records
+Incremental Loading
         │
         ▼
-Incremental Load
+🥉 SQL Server Bronze
         │
         ▼
-SQL Server Bronze
+🥈 SQL Server Silver
         │
         ▼
-Silver Stored Procedure
+🥇 SQL Server Gold
         │
         ▼
-Gold Currency Integration
+Analytics
 ```
 
-## Pipeline Responsibilities
+## Features
 
-The Python pipeline:
+The original pipeline demonstrates:
 
-- Connects to the currency REST API using `requests`.
-- Retrieves historical exchange-rate data.
-- Uses HTTP error handling with `raise_for_status()`.
-- Stores the raw API response as JSON.
-- Converts the API response into a Pandas DataFrame.
-- Converts the date column into a proper datetime type.
-- Checks NULL values.
-- Checks duplicate rows.
-- Checks data types.
-- Detects invalid exchange rates.
-- Creates a SQLAlchemy database engine.
-- Tests the SQL Server connection.
-- Reads the current watermark from the Bronze layer.
-- Filters records based on the watermark.
-- Detects whether new records are available.
-- Loads only new records into Bronze.
-- Executes the Silver stored procedure automatically.
-- Logs important pipeline events.
-- Handles API and pipeline errors.
+- REST API extraction
+- Raw JSON storage
+- Pandas DataFrames
+- Date conversion
+- NULL checks
+- Duplicate checks
+- Data type validation
+- Invalid exchange-rate detection
+- SQLAlchemy database connectivity
+- SQL Server integration
+- Watermark logic
+- Incremental loading
+- Stored procedures
+- Logging
+- Error handling
 
 ---
 
-# ⚡ PySpark Currency Pipeline
+# ⚡ Version 2 — PySpark + Parquet Pipeline
 
-As the project evolved, a second implementation of the currency pipeline was developed using **PySpark**.
+The second implementation rebuilds the currency pipeline using **PySpark**.
 
-The original **Pandas + SQL Server pipeline** is intentionally preserved in the repository. This demonstrates the progression from local DataFrame processing and relational database loading toward distributed data processing and Parquet-based storage.
+Instead of processing the data primarily with Pandas and storing each layer in SQL Server, this version uses:
 
-## PySpark Pipeline Flow
+- Spark DataFrames
+- Spark transformations
+- Parquet storage
+- Partitioning
+- Spark-based watermark logic
+- Incremental processing
+
+## Pipeline Flow
 
 ```text
 Frankfurter REST API
-        │
-        ▼
-Python Requests
         │
         ▼
 Raw JSON
@@ -281,13 +258,10 @@ Raw JSON
 PySpark DataFrame
         │
         ▼
-Data Type Conversion
+Data Preparation
         │
         ▼
-NULL & Duplicate Handling
-        │
-        ▼
-Data Quality Validation
+Data Quality Checks
         │
         ▼
 Watermark Check
@@ -303,248 +277,454 @@ PySpark Transformations
         │
         ▼
 🥈 Silver Parquet
+        │
+        ▼
+PySpark Aggregations
+        │
+        ▼
+🥇 Gold Parquet
+        │
+        ▼
+Analytics / Reporting
 ```
 
-## PySpark Features
+---
 
-The PySpark implementation demonstrates:
+# ⚡ PySpark Processing
 
-- SparkSession creation
-- Spark DataFrame processing
-- Data type conversion using `cast()`
-- Date conversion using `to_date()`
-- NULL handling with `dropna()`
-- Duplicate removal with `dropDuplicates()`
-- Filtering with Spark expressions
+The PySpark pipeline uses a `SparkSession` to process data using Spark DataFrames.
+
+The pipeline performs:
+
+- Spark DataFrame creation
+- Date conversion with `to_date()`
+- Numeric conversion with `cast()`
+- NULL handling
+- Duplicate removal
+- Filtering
 - Data quality validation
-- Spark aggregations
-- Watermark logic
-- Incremental data processing
-- Parquet storage
-- Partitioning using `partitionBy()`
-- Bronze processing with PySpark
-- Silver transformations with PySpark
-- Modular pipeline development
-- Logging and error handling
+- Aggregations
+- Incremental processing
+- Parquet reads and writes
+- Partitioning
 
-## Pipeline Evolution
-
-```text
-Version 1
-Pandas + SQLAlchemy + SQL Server
-        │
-        ▼
-Watermark-based Incremental Loading
-        │
-        ▼
-SQL Server Bronze
-        │
-        ▼
-SQL Server Silver
-
-                ↓ EVOLUTION ↓
-
-Version 2
-PySpark DataFrames
-        │
-        ▼
-Spark Transformations
-        │
-        ▼
-Watermark-based Incremental Processing
-        │
-        ▼
-Partitioned Bronze Parquet
-        │
-        ▼
-Partitioned Silver Parquet
-```
-
-Both implementations are kept in the repository to demonstrate the learning journey and the transition toward scalable Data Engineering technologies.
-
----
-
-# 💱 Currency Data
-
-Historical exchange rates are collected for the sales period:
-
-```text
-2010-12-29 → 2014-01-28
-```
-
-Currencies retrieved:
-
-```text
-EUR → USD
-EUR → GBP
-EUR → CHF
-```
-
-The currency data is used to enrich the existing sales data with historical currency conversions.
-
----
-
-# 🔄 Incremental Loading
-
-One of the main improvements to the currency pipelines is the implementation of **incremental loading and processing**.
-
-Instead of blindly loading the same historical records every time the pipeline runs, the pipelines determine which data has already been processed.
-
-## Pandas + SQL Server Watermark
-
-In the original implementation, the maximum date already stored in the Bronze currency table is used as a watermark.
-
-Conceptually:
-
-```sql
-SELECT MAX(date)
-FROM bronze.api_currency_rates;
-```
-
-The pipeline then compares the incoming API data with this watermark.
-
-```text
-Incoming API Data
-        │
-        ▼
-Read Bronze Watermark
-        │
-        ▼
-Compare Dates
-        │
-        ├── Old record ──► Skip
-        │
-        └── New record ──► Load
-```
-
-## PySpark Watermark
-
-The PySpark implementation applies the same concept using Spark.
-
-The Bronze Parquet dataset is read and the maximum processed date is retrieved using a Spark aggregation.
-
-Conceptually:
+Example transformation:
 
 ```python
-bronze_df.agg(
-    spark_max("date").alias("watermark")
+df = df.withColumn(
+    "rate",
+    col("rate").cast("double")
 )
 ```
 
-Incoming records are then filtered using:
-
-```python
-col("date") > watermark
-```
-
-If no watermark exists, the dataset is treated as the initial load.
-
-This prevents the pipelines from unnecessarily processing the same historical data during every execution.
-
 ---
 
-# 🔍 Data Quality Checks
+# 🔍 Data Quality
 
 Data quality validation is performed before data continues through the pipeline.
 
-The pipelines check for:
+The PySpark pipeline:
 
-- NULL values
-- Duplicate rows
-- Data types
-- Invalid exchange rates
+```text
+Incoming Data
+      │
+      ▼
+Convert Data Types
+      │
+      ▼
+Remove NULLs
+      │
+      ▼
+Remove Duplicates
+      │
+      ▼
+Check Invalid Rates
+      │
+      ▼
+Continue Pipeline
+```
 
-Invalid exchange rates are identified when:
+An exchange rate is considered invalid when:
 
 ```text
 rate <= 0
 ```
 
-The PySpark implementation additionally performs transformations such as:
-
-```text
-Date conversion
-      │
-      ▼
-Rate type conversion
-      │
-      ▼
-NULL removal
-      │
-      ▼
-Duplicate removal
-      │
-      ▼
-Invalid rate validation
-```
-
-If invalid rates are detected, the pipeline logs the problem and stops before loading the affected dataset.
+If invalid rates are detected, the pipeline stops before loading the affected data.
 
 ---
 
-# 📝 Logging & Error Handling
+# 🔄 Watermark & Incremental Processing
 
-The pipelines use logging to make execution easier to follow and troubleshoot.
+The pipeline uses a **watermark** to avoid processing the same records repeatedly.
 
-Examples of logged events include:
+The watermark represents:
 
-- Pipeline started
-- API extraction successful
-- Number of extracted records
-- Raw JSON saved
-- Database connection successful in the SQL Server implementation
-- Current watermark
-- Number of new records
-- Bronze load successful
-- Silver processing successful
-- Pipeline completed
-- Pipeline failure
+> The latest date that has already been processed.
 
-The pipelines also handle:
+In the PySpark implementation, the Bronze Parquet dataset is read and Spark calculates the maximum date:
 
-- API request errors
-- Database errors in the SQL Server implementation
-- Unexpected pipeline exceptions
+```python
+result = bronze_df.agg(
+    spark_max("date").alias("watermark")
+).collect()
 
-This makes failures easier to identify instead of allowing a pipeline to fail silently.
+watermark = result[0]["watermark"]
+```
+
+New API data is then filtered:
+
+```python
+new_data = df.filter(
+    col("date") > watermark
+)
+```
+
+Conceptually:
+
+```text
+API Data
+   │
+   ▼
+Read Bronze
+   │
+   ▼
+MAX(date)
+   │
+   ▼
+Watermark
+   │
+   ▼
+date > watermark
+   │
+   ▼
+Only New Records
+```
+
+If Bronze does not exist yet:
+
+```text
+watermark = None
+```
+
+This indicates the first pipeline run, so all available records are processed.
+
+---
+
+# 🥉 Bronze Layer — PySpark
+
+Bronze contains the incrementally ingested currency data.
+
+Only records newer than the watermark are appended.
+
+```python
+new_data.write \
+    .mode("append") \
+    .partitionBy("quote") \
+    .parquet(BRONZE_PATH)
+```
+
+The data is partitioned by:
+
+```text
+quote
+```
+
+Example:
+
+```text
+bronze/currency_rates/
+
+├── quote=USD/
+├── quote=GBP/
+└── quote=CHF/
+```
+
+This organizes the dataset by currency and allows Spark to avoid unnecessary partitions when queries filter on the partition column.
+
+---
+
+# 🥈 Silver Layer — PySpark
+
+After new records are added to Bronze, the pipeline reads the complete Bronze dataset.
+
+```text
+Bronze
+   │
+   ▼
+Read Complete Dataset
+   │
+   ▼
+Remove Duplicates
+   │
+   ▼
+Validate Rates
+   │
+   ▼
+Silver
+```
+
+Silver contains cleaned and validated currency data.
+
+The transformation includes:
+
+- Duplicate removal
+- Invalid-rate filtering
+- Clean data types
+- Valid currency records
+
+Silver is stored as partitioned Parquet:
+
+```text
+silver/currency_rates/
+
+├── quote=USD/
+├── quote=GBP/
+└── quote=CHF/
+```
+
+The Silver dataset is rebuilt from the complete Bronze dataset to preserve historical data.
+
+---
+
+# 🥇 Gold Layer — PySpark
+
+The Gold layer transforms the cleaned Silver data into a simple analytical currency summary.
+
+The data is grouped by:
+
+```text
+quote
+```
+
+The pipeline calculates:
+
+- Average exchange rate
+- Minimum exchange rate
+- Maximum exchange rate
+
+Example:
+
+```text
+quote | average_rate | min_rate | max_rate
+------------------------------------------------
+USD   | 1.35         | 1.20     | 1.48
+GBP   | 0.84         | 0.78     | 0.91
+CHF   | 1.18         | 1.02     | 1.32
+```
+
+The transformation is performed using:
+
+```python
+gold_df = silver_df.groupBy(
+    "quote"
+).agg(
+    avg("rate").alias("average_rate"),
+    spark_min("rate").alias("min_rate"),
+    spark_max("rate").alias("max_rate")
+)
+```
+
+Gold is then stored as Parquet:
+
+```python
+gold_df.write \
+    .mode("overwrite") \
+    .parquet(GOLD_PATH)
+```
+
+This dataset is ready for analytical use or further integration with reporting tools.
+
+---
+
+# 📦 Why Parquet?
+
+The PySpark implementation uses **Apache Parquet** instead of CSV for the Medallion layers.
+
+Parquet provides:
+
+- Column-oriented storage
+- Compression
+- Data type preservation
+- Efficient analytical reads
+- Good integration with Spark
+- Support for partitioning
+
+This makes Parquet well suited for analytical Data Engineering workloads.
+
+---
+
+# 📂 Partitioning
+
+Bronze and Silver are partitioned by currency:
+
+```python
+.partitionBy("quote")
+```
+
+This creates a structure such as:
+
+```text
+currency_rates/
+
+├── quote=USD/
+├── quote=GBP/
+└── quote=CHF/
+```
+
+When Spark needs only one currency, partition pruning can allow irrelevant partitions to be skipped.
+
+For example:
+
+```python
+df.filter(
+    col("quote") == "USD"
+)
+```
+
+Spark can focus on the USD partition instead of scanning all currency partitions.
+
+Gold is not partitioned because the aggregated Gold dataset is very small.
+
+---
+
+# 🧠 Pipeline Evolution
+
+One of the main goals of this repository is to show how the project evolved while learning new Data Engineering concepts.
+
+## Version 1
+
+```text
+REST API
+   ↓
+Python
+   ↓
+Pandas
+   ↓
+SQLAlchemy
+   ↓
+SQL Server Bronze
+   ↓
+SQL Server Silver
+   ↓
+SQL Server Gold
+```
+
+## Version 2
+
+```text
+REST API
+   ↓
+Python
+   ↓
+PySpark
+   ↓
+Incremental Processing
+   ↓
+Bronze Parquet
+   ↓
+Silver Parquet
+   ↓
+Gold Parquet
+```
+
+The first implementation is intentionally kept in the repository.
+
+The goal is not to show that one tool is always better than another, but to demonstrate how the same Data Engineering problem can be approached with different technologies as data-processing requirements evolve.
+
+---
+
+# 💱 SQL Currency Integration
+
+The original SQL Server implementation integrates historical exchange rates with sales data.
+
+Sales data is connected to currency data using:
+
+```text
+fact_sales.order_date
+        │
+        ▼
+api_currency_rates.date
+```
+
+Example:
+
+```text
+Sales Amount
+€3,578
+
+Historical EUR → USD Rate
+1.3155
+
+Converted Sales
+€3,578 × 1.3155 = $4,706.86
+```
+
+The resulting analytical SQL view is:
+
+```text
+gold.fact_sales_currency
+```
+
+It contains:
+
+- Order Number
+- Product Key
+- Customer Key
+- Order Date
+- EUR Sales Amount
+- Target Currency
+- Historical Exchange Rate
+- Converted Sales Amount
+
+---
+
+# ⭐ SQL Server Data Model
+
+The original SQL Server implementation also contains a Star Schema.
+
+```text
+             dim_customers
+                  │
+                  ▼
+dim_products ──► fact_sales
+```
+
+Gold objects include:
+
+```text
+gold.dim_customers
+gold.dim_products
+gold.fact_sales
+gold.fact_sales_currency
+```
+
+This allows the project to demonstrate both:
+
+- Data pipeline engineering
+- Analytical data modeling
+
+---
+
+# ⚠️ Project Assumption
+
+The original sales dataset does not contain a currency field.
+
+For demonstration purposes, the original `sales_amount` values are treated as **EUR**.
+
+Historical EUR exchange rates are retrieved from the currency API and used to calculate equivalent values in:
+
+- USD
+- GBP
+- CHF
+
+This assumption allows the project to demonstrate API ingestion, historical currency conversion, and multi-source data integration.
 
 ---
 
 # 🧩 Modular Pipeline Design
 
-Both implementations are divided into reusable functions.
-
-## Pandas + SQL Server
-
-Examples include:
-
-```text
-create_database_engine()
-test_database_connection()
-
-extract_currency_data()
-save_raw_data()
-create_dataframe()
-convert_date_column()
-
-check_null_values()
-check_duplicates()
-check_data_types()
-check_invalid_rates()
-
-get_watermark()
-filter_new_data()
-check_new_data()
-
-load_bronze()
-load_silver()
-
-main()
-```
-
-## PySpark
-
-The PySpark implementation includes functions such as:
+The PySpark pipeline is divided into reusable functions.
 
 ```text
 create_spark_session()
@@ -567,403 +747,73 @@ filter_new_data()
 check_new_data()
 
 load_bronze()
+read_bronze()
 
 transform_silver()
 load_silver()
+read_silver()
+
+transform_gold()
+load_gold()
 
 main()
 ```
 
-The `main()` function coordinates each pipeline.
-
-This structure separates responsibilities and makes the pipelines easier to understand, maintain, and extend.
-
----
-
-# 🥉 Bronze Layer
-
-The Bronze layer stores source data before business transformations are applied.
-
-## Sources
-
-- CRM CSV files
-- ERP CSV files
-- Currency API data
-
-## SQL Server Implementation
-
-CRM and ERP use:
+The `main()` function coordinates the complete pipeline.
 
 ```text
-Batch Processing
-Full Load
-Truncate & Insert
-```
-
-The original currency API pipeline uses:
-
-```text
-Python Ingestion
-Watermark Check
-Incremental Loading
-Append New Records
-```
-
-Currency data is loaded into:
-
-```text
-bronze.api_currency_rates
-```
-
-## PySpark Implementation
-
-The PySpark currency pipeline stores incremental Bronze data in **Parquet format**.
-
-```text
-API Data
-   │
-   ▼
-PySpark DataFrame
-   │
-   ▼
-Incremental Filter
-   │
-   ▼
-Bronze Parquet
-```
-
-The Bronze Parquet dataset is partitioned by the currency quote.
-
-The Bronze layer also provides the processed data used to determine the current watermark.
-
----
-
-# 🥈 Silver Layer
-
-The Silver layer contains cleaned, standardized, validated, and deduplicated data.
-
-## SQL Server Transformations
-
-- Data Cleaning
-- Data Standardization
-- Missing Value Handling
-- Duplicate Removal
-- Data Type Validation
-- String Standardization
-- Business Key Validation
-- Data Enrichment
-
-Currency data flows from:
-
-```text
-bronze.api_currency_rates
-```
-
-to:
-
-```text
-silver.api_currency_rates
-```
-
-Currency codes are standardized using:
-
-```sql
-TRIM()
-UPPER()
-```
-
-Duplicate currency records are detected using:
-
-```sql
-ROW_NUMBER()
-```
-
-The currency business key consists of:
-
-```text
-date + base + quote
-```
-
-Existing Silver records are protected from duplicate insertion using:
-
-```sql
-NOT EXISTS
-```
-
-## PySpark Silver Processing
-
-The PySpark implementation performs Silver transformations using Spark DataFrame operations.
-
-These include:
-
-- Duplicate removal
-- Invalid rate filtering
-- Data type preparation
-- Spark-based transformations
-- Parquet output
-- Partitioned storage
-
-The transformed data is stored as a Silver Parquet dataset.
-
----
-
-# 🥇 Gold Layer
-
-The Gold layer contains business-ready datasets used for analytics and reporting.
-
-Data from the SQL Server Silver layer is integrated and modeled into fact and dimension views.
-
-## Object Type
-
-**Views**
-
-## Data Model
-
-The Gold layer contains:
-
-```text
-gold.dim_customers
-gold.dim_products
-gold.fact_sales
-gold.fact_sales_currency
-```
-
-## Transformations
-
-- Data Integration
-- Business Logic
-- Joins
-- Surrogate Keys
-- Currency Conversion
-- Analytical Modeling
-
-## Purpose
-
-The Gold layer provides structured and business-friendly datasets optimized for analytical SQL queries and BI/reporting tools.
-
-The current PySpark learning implementation focuses on **Bronze and Silver processing**. Gold processing with Spark can be added in a later stage.
-
----
-
-# ⭐ Data Modeling
-
-The main SQL Server Gold model follows a **Star Schema**.
-
-```text
-             dim_customers
-                  │
-                  ▼
-dim_products ──► fact_sales
-```
-
-## Fact Data
-
-`gold.fact_sales` contains measurable sales events such as:
-
-- Sales amount
-- Quantity
-- Price
-- Order date
-
-## Dimension Data
-
-`gold.dim_customers` contains descriptive customer information.
-
-`gold.dim_products` contains descriptive product information.
-
-This structure makes analytical SQL queries easier to write and provides a clear separation between facts and descriptive attributes.
-
----
-
-# 💱 Currency Integration
-
-The project extends the original sales model by integrating historical currency exchange rates.
-
-Sales data is connected to currency data using the order date:
-
-```text
-fact_sales.order_date
-        │
-        ▼
-api_currency_rates.date
-```
-
-Example:
-
-```text
-Sales Amount
-€3,578
-
-Historical EUR → USD Rate
-1.3155
-
-Converted Sales
-€3,578 × 1.3155 = $4,706.86
-```
-
-The resulting analytical SQL Server view is:
-
-```text
-gold.fact_sales_currency
-```
-
-It contains:
-
-- Order Number
-- Product Key
-- Customer Key
-- Order Date
-- EUR Sales Amount
-- Target Currency
-- Historical Exchange Rate
-- Converted Sales Amount
-
-Each sales transaction can therefore be analyzed using historical:
-
-- USD
-- GBP
-- CHF
-
-exchange rates.
-
----
-
-# ⚠️ Project Assumption
-
-The original sales dataset does **not contain a currency field**.
-
-For demonstration purposes, the original `sales_amount` values are treated as **EUR**.
-
-Historical EUR exchange rates are retrieved from the external currency API and used to calculate equivalent sales values in USD, GBP, and CHF.
-
-This assumption was introduced specifically to demonstrate:
-
-- API ingestion
-- Multi-source data integration
-- Historical currency conversion
-- Python and SQL integration
-
----
-
-# 🔄 ETL / ELT Process
-
-The project combines SQL-based warehouse processing with Python and PySpark-based API ingestion.
-
-## CRM & ERP Pipeline
-
-```text
-CSV Files
-    │
-    ▼
+Extract
+   ↓
+Prepare
+   ↓
+Validate
+   ↓
+Watermark
+   ↓
+Incremental Processing
+   ↓
 Bronze
-    │
-    ▼
+   ↓
 Silver
-    │
-    ▼
+   ↓
 Gold
 ```
 
-## Original Currency API Pipeline
-
-```text
-REST API
-    │
-    ▼
-Python
-    │
-    ▼
-Raw JSON
-    │
-    ▼
-Pandas
-    │
-    ▼
-Data Quality
-    │
-    ▼
-Watermark
-    │
-    ▼
-Incremental Load
-    │
-    ▼
-SQL Server Bronze
-    │
-    ▼
-SQL Server Silver
-    │
-    ▼
-Gold Currency Integration
-```
-
-## PySpark Currency Pipeline
-
-```text
-REST API
-    │
-    ▼
-Python Requests
-    │
-    ▼
-Raw JSON
-    │
-    ▼
-PySpark DataFrame
-    │
-    ▼
-Data Preparation
-    │
-    ▼
-Data Quality
-    │
-    ▼
-Watermark
-    │
-    ▼
-Incremental Processing
-    │
-    ▼
-Bronze Parquet
-    │
-    ▼
-PySpark Transformations
-    │
-    ▼
-Silver Parquet
-```
+This separation makes the pipeline easier to understand, maintain, test, and extend.
 
 ---
 
-# 📊 Analytics
+# 📝 Logging & Error Handling
 
-The Gold layer supports analysis across several business areas.
+The pipeline logs important execution events.
 
-## Customer Behavior
+Examples include:
 
-- Customer purchasing patterns
-- Customer segmentation
-- Customer contribution to revenue
+- Pipeline started
+- API extraction successful
+- Number of extracted records
+- Raw JSON saved
+- Current watermark
+- Number of new records
+- Bronze load successful
+- Silver load successful
+- Gold load successful
+- Pipeline completed
+- Pipeline failed
 
-## Product Performance
+The pipeline also handles API errors:
 
-- Best-performing products
-- Product sales performance
-- Product categories
+```python
+except requests.RequestException as error:
+```
 
-## Sales Trends
+and unexpected pipeline errors:
 
-- Revenue development
-- Sales over time
-- Business performance
+```python
+except Exception as error:
+```
 
-## Currency Analysis
-
-- Historical sales values in different currencies
-- EUR to USD conversion
-- EUR to GBP conversion
-- EUR to CHF conversion
-- Exchange-rate changes over time
+This prevents failures from happening silently and makes troubleshooting easier.
 
 ---
 
@@ -999,262 +849,248 @@ sql-data-warehouse-project/
 └── README.md
 ```
 
-## `datasets/`
-
-Contains source data used by the project:
-
-- CRM datasets
-- ERP datasets
-- Raw currency API data
-
-## `python/`
-
-Contains the Python and PySpark components of the pipeline.
-
-```text
-python/
-└── ingestion/
-    ├── load_data.py
-    └── currency_pipeline_pyspark.py
-```
+## Python Pipelines
 
 ### `load_data.py`
 
-Contains the original **Pandas + SQL Server** currency pipeline:
+Original implementation using:
 
-- REST API extraction
-- Raw JSON storage
+```text
+Python
+Pandas
+SQLAlchemy
+SQL Server
+```
+
+It demonstrates:
+
+- API extraction
 - Pandas processing
-- Data quality checks
+- Data quality
+- SQL Server connectivity
 - Watermark logic
 - Incremental loading
-- SQL Server connectivity
-- Bronze loading
-- Silver execution
-- Logging
-- Error handling
+- Stored procedure execution
 
 ### `currency_pipeline_pyspark.py`
 
-Contains the second-generation **PySpark** implementation:
-
-- SparkSession creation
-- Spark DataFrames
-- Data cleaning
-- Spark transformations
-- Data quality validation
-- Watermark logic
-- Incremental processing
-- Parquet storage
-- Partitioned Bronze storage
-- Silver transformation
-- Partitioned Silver storage
-- Logging
-- Error handling
-
-## `scripts/`
-
-Contains SQL scripts used to build and transform the SQL Server Data Warehouse.
+New implementation using:
 
 ```text
-scripts/
-├── bronze/
-├── silver/
-└── gold/
+Python
+PySpark
+Apache Spark
+Parquet
 ```
 
-Each directory represents one layer of the Medallion Architecture.
+It demonstrates:
+
+- SparkSession
+- Spark DataFrames
+- Data cleaning
+- Data quality
+- Watermark logic
+- Incremental processing
+- Parquet
+- Partitioning
+- Bronze processing
+- Silver transformations
+- Gold aggregations
 
 ---
 
-# 🔍 Data Quality
+# 📊 Analytics
 
-Data quality is handled across Python, PySpark, and SQL.
+The project supports analysis such as:
 
-## Python Data Quality
+## Customer Analysis
 
-The original currency pipeline checks:
+- Customer purchasing patterns
+- Customer contribution to revenue
 
-- NULL values
-- Duplicate rows
-- Data types
-- Invalid exchange rates
+## Product Analysis
 
-## PySpark Data Quality
+- Best-performing products
+- Product categories
+- Product sales performance
 
-The Spark implementation performs:
+## Sales Analysis
 
-- NULL handling
-- Duplicate removal
-- Date conversion
-- Rate type conversion
-- Invalid rate detection
-- Validation before Bronze processing
+- Revenue trends
+- Sales over time
+- Business performance
 
-## SQL Data Quality
+## Currency Analysis
 
-SQL transformations include:
-
-- NULL handling
-- Duplicate detection
-- Data type validation
-- String trimming
-- Standardization with `UPPER()`
-- Invalid value handling
-- Business key validation
-- Deduplication using `ROW_NUMBER()`
-- Duplicate prevention using `NOT EXISTS`
-- Sales validation
-- Date validation
-
-This provides multiple layers of validation throughout the project.
+- Historical exchange rates
+- Average exchange rate by currency
+- Minimum exchange rate
+- Maximum exchange rate
+- EUR → USD conversion
+- EUR → GBP conversion
+- EUR → CHF conversion
 
 ---
 
 # 🧠 Skills Demonstrated
 
-## SQL & Data Warehousing
+## SQL
 
-- SQL Development
 - T-SQL
-- Data Warehousing
-- Medallion Architecture
-- Bronze / Silver / Gold Design
+- SQL Server
 - Stored Procedures
 - Window Functions
+- Joins
 - Data Cleaning
 - Data Transformation
-- Data Integration
-- Fact & Dimension Modeling
-- Star Schema Design
-- Analytical SQL
+- Fact Tables
+- Dimension Tables
+- Star Schema
+- Medallion Architecture
 
-## Python & Data Engineering
+## Python
 
 - Python
 - Pandas
-- REST API Integration
-- JSON Processing
+- REST APIs
 - Requests
+- JSON
 - SQLAlchemy
 - PyODBC
-- API Error Handling
+- Functions
 - Exception Handling
 - Logging
-- Data Quality Checks
-- Database Connection Management
-- Incremental Loading
-- Watermark Logic
-- Automated Database Loading
 - Modular Pipeline Development
 
-## PySpark & Distributed Processing
+## PySpark
 
-- PySpark
 - Apache Spark
 - SparkSession
 - Spark DataFrames
-- Spark Transformations
-- Spark Filtering
-- Data Type Casting
-- NULL Handling
-- Duplicate Removal
-- Spark Aggregations
+- `select()`
+- `filter()`
+- `withColumn()`
+- `cast()`
+- `to_date()`
+- `dropna()`
+- `dropDuplicates()`
+- `groupBy()`
+- `agg()`
+- Spark aggregations
+- Parquet reads and writes
+- Partitioning
+- Partition pruning concepts
+
+## Data Engineering
+
+- ETL / ELT
+- Data Ingestion
+- Data Quality
 - Incremental Processing
-- Watermark Logic with Spark
-- Apache Parquet
-- Data Partitioning
-- Bronze / Silver Processing
-
-## Engineering Practices
-
-- Multi-Source Data Integration
-- ETL / ELT Pipelines
-- Incremental Data Processing
-- Business Key Deduplication
-- Idempotent Silver Loading
-- Separation of Pipeline Responsibilities
+- Watermark Logic
+- Medallion Architecture
+- Bronze / Silver / Gold
+- Parquet
+- Partitioning
+- Multi-source Data Integration
+- Data Modeling
+- Logging
 - Error Handling
-- Pipeline Logging
 - Git
 - GitHub
-- Technical Documentation
 
 ---
 
 # 🚀 Key Learning Outcomes
 
-Through this project, I gained hands-on experience building and evolving an end-to-end Data Engineering pipeline combining **SQL, Python, Pandas, and PySpark**.
+Through this project, I learned how to build and gradually evolve an end-to-end Data Engineering pipeline.
 
-The project demonstrates how a Data Engineer can:
+The project demonstrates how to:
 
-1. Ingest data from different source types.
-2. Extract external data through a REST API.
-3. Process API responses using Python and Pandas.
-4. Preserve raw API data as JSON.
-5. Perform data quality checks before loading.
-6. Connect Python applications to SQL Server.
-7. Load data into SQL Server programmatically.
-8. Implement incremental loading using watermark logic.
-9. Process only records that have not already been loaded.
-10. Design Bronze, Silver, and Gold data layers.
-11. Clean and deduplicate data using SQL.
-12. Automate transformations using stored procedures.
-13. Integrate multiple datasets into analytical models.
-14. Build fact and dimension views.
-15. Implement historical currency conversion.
-16. Add logging and error handling to a data pipeline.
-17. Structure Python code into reusable pipeline functions.
-18. Prepare business-ready data for analytics and BI.
-19. Create and process Spark DataFrames with PySpark.
-20. Perform transformations using Spark functions.
-21. Apply data quality rules using PySpark.
-22. Implement Spark-based watermark logic.
-23. Perform incremental processing with PySpark.
-24. Store datasets using Apache Parquet.
-25. Partition Parquet datasets for more efficient processing.
-26. Build Bronze and Silver processing using PySpark.
-27. Compare local Pandas processing with Spark-based processing.
+1. Ingest data from CSV files and REST APIs.
+2. Preserve raw API data as JSON.
+3. Process data using Pandas.
+4. Process data using PySpark.
+5. Create and transform Spark DataFrames.
+6. Validate data quality.
+7. Handle NULL values and duplicates.
+8. Convert data types.
+9. Implement watermark logic.
+10. Process only new records.
+11. Build incremental pipelines.
+12. Store analytical datasets using Parquet.
+13. Partition datasets.
+14. Understand partition pruning.
+15. Build Bronze, Silver, and Gold layers.
+16. Perform Spark aggregations.
+17. Build SQL Server fact and dimension models.
+18. Integrate historical currency data with sales data.
+19. Add logging and error handling.
+20. Structure pipelines into reusable functions.
+21. Evolve a Pandas-based pipeline toward PySpark.
 
 ---
 
 # 🔜 Next Steps
 
-The project has now progressed from a **Pandas + SQL Server pipeline** to an additional **PySpark + Parquet implementation**.
-
-The next phase will focus on applying these Spark concepts in a more cloud-oriented Data Engineering environment.
+The project has progressed through:
 
 ```text
-SQL Server + Pandas
-        │
-        ▼
-PySpark + Parquet
-        │
-        ▼
+SQL
+ │
+ ▼
+Python + Pandas
+ │
+ ▼
+REST API Pipeline
+ │
+ ▼
+Watermark & Incremental Loading
+ │
+ ▼
+PySpark
+ │
+ ▼
+Parquet & Partitioning
+ │
+ ▼
+Bronze / Silver / Gold with Spark
+```
+
+The next phase will focus on running these concepts in a modern Data Engineering platform.
+
+```text
+Current Project
+      │
+      ▼
 Databricks
-        │
-        ▼
-Cloud Data Platform
-        │
-        ▼
+      │
+      ▼
+Delta Lake
+      │
+      ▼
+Cloud Storage
+      │
+      ▼
 Orchestration
-        │
-        ▼
-End-to-End Data Engineering Pipeline
+      │
+      ▼
+Production-style Data Pipeline
 ```
 
 Future learning goals:
 
-- Databricks notebooks
-- Spark processing in Databricks
-- Cloud storage integration
-- Lakehouse architecture
+- Databricks
+- Spark notebooks
 - Delta Lake
+- Lakehouse Architecture
+- Cloud storage
 - Pipeline orchestration
-- Scheduled data pipelines
+- Scheduled pipelines
+- Monitoring
 - End-to-end cloud Data Engineering
 
-The objective is to continue evolving the same project as new Data Engineering technologies are learned, while preserving earlier implementations to demonstrate the complete learning journey.
+The objective is to continue evolving the same project while preserving earlier implementations to demonstrate the complete learning journey.
 
 ---
 
